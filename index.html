@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartCurric+ Interactive</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav>
+  <h1>SmartCurric+ <span id="xpCounter" style="font-size:1rem;color:#4f46e5;margin-left:10px;">XP: 0</span></h1>
+  <div class="nav-buttons">
+    <button class="student">Student</button>
+    <button class="teacher">Teacher</button>
+    <button class="parent">Parent</button>
+  </div>
+</nav>
+
+<!-- Student Section -->
+<div id="studentSection">
+  <section>
+    <div class="cards">
+      <div class="card attendance" id="attendanceCard">
+        <h2>Attendance</h2>
+        <p class="big" id="attendanceValue">92%</p>
+        <p>+2% vs last month</p>
+      </div>
+      <div class="card">
+        <h2>Mood Check-In</h2>
+        <div class="moods">
+          <button>😊</button><button>😐</button><button>😔</button><button>🔥</button><button>😴</button>
+        </div>
+      </div>
+      <div class="card" id="assignmentCard">
+        <h2>Smart Assignment</h2>
+        <p>AI suggests: 15-min Math quiz</p>
+        <button id="assignmentsBtn" style="margin-top:10px;padding:8px 16px;border:none;border-radius:10px;background:#4f46e5;color:#fff;">View Assignments</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 style="font-size:1.8rem;font-weight:600;margin-bottom:20px;">Curriculum Progress</h2>
+    <div class="cards">
+      <div class="card progressCard"><h3>Math</h3><div class="progress-bar"><div class="progress-bar-fill" style="width:40%"></div></div></div>
+      <div class="card progressCard"><h3>Science</h3><div class="progress-bar"><div class="progress-bar-fill" style="width:20%"></div></div></div>
+      <div class="card progressCard"><h3>English</h3><div class="progress-bar"><div class="progress-bar-fill" style="width:60%"></div></div></div>
+      <div class="card progressCard"><h3>History</h3><div class="progress-bar"><div class="progress-bar-fill" style="width:30%"></div></div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 style="font-size:1.8rem;font-weight:600;margin-bottom:20px;">Weekly Challenges</h2>
+    <div class="cards">
+      <div class="challenge">Attend 5 days in a row<br><small>+50 XP</small></div>
+      <div class="challenge" style="background:linear-gradient(45deg,#22c55e,#3b82f6)">Complete 3 Smart Assignments<br><small>+80 XP</small></div>
+      <div class="challenge" style="background:linear-gradient(45deg,#f472b6,#ef4444)">Help a Peer in Smart Threads<br><small>+30 XP</small></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 style="font-size:1.8rem;font-weight:600;margin-bottom:20px;">Session Recordings</h2>
+    <div class="cards" id="recordingsList">
+      <!-- Recordings will be injected here -->
+    </div>
+  </section>
+
+  <section>
+    <h2 style="font-size:1.8rem;font-weight:600;margin-bottom:20px;">Smart Threads</h2>
+    <div class="threads">
+      <input type="text" id="threadInput" placeholder="Ask a doubt...">
+      <div id="threadList">
+        <div class="thread-item">You asked: “Explain Newton’s 3rd law?”<br><small>AI: Every action has an equal & opposite reaction...</small></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Teacher Section -->
+<div id="teacherSection" style="display:none; padding:20px;">
+  <h2>Teacher: Upload Notes</h2>
+  <label for="subjectSelect">Select Subject:</label>
+  <select id="subjectSelect">
+    <option>Math</option>
+    <option>Science</option>
+    <option>English</option>
+    <option>History</option>
+  </select>
+  <input type="text" id="pdfName" placeholder="PDF Name" style="margin-top:10px;">
+  <input type="file" id="pdfFile" accept="application/pdf" style="margin-top:10px;">
+  <button id="uploadBtn" style="margin-top:10px;padding:8px 16px;border:none;border-radius:10px;background:#4f46e5;color:#fff;">Add PDF</button>
+  <p style="margin-top:15px;font-size:0.9rem;color:#666;">This will immediately show up in the students' notes modal.</p>
+</div>
+
+<!-- Parent Section -->
+<div id="parentSection" style="display:none; padding:20px;">
+  <h2>Parent: Overview</h2>
+  <p>Attendance: <span id="parentAttendance">92%</span></p>
+  <p>Progress snapshot will go here (you can fill whatever info you want).</p>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">Mood Saved!</div>
+
+<!-- Modals -->
+<div class="modal" id="videoModal">
+  <div class="modal-content">
+    <h3 id="videoTitle">Video Title</h3>
+    <video id="videoPlayer" width="100%" height="200" controls>
+      <source src="" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <button onclick="closeVideoModal()">Close</button>
+  </div>
+</div>
+
+<div class="modal" id="attendanceModal">
+  <div class="modal-content">
+    <h3>Attendance Over Time</h3>
+    <canvas id="attendanceChart" style="width:100%;height:200px;"></canvas>
+    <button onclick="closeAttendanceModal()">Close</button>
+  </div>
+</div>
+
+<div class="modal" id="assignmentsModal">
+  <div class="modal-content">
+    <h3>Available Smart Assignments</h3>
+    <div id="assignmentsList"></div>
+    <button onclick="closeAssignmentsModal()">Close</button>
+  </div>
+</div>
+
+<div class="modal" id="notesModal">
+  <div class="modal-content">
+    <h3 id="notesTitle">Subject Notes</h3>
+    <div id="notesBody" style="text-align:left;max-height:200px;overflow-y:auto;">
+      <!-- PDFs will appear here -->
+    </div>
+    <button onclick="closeNotesModal()">Close</button>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
