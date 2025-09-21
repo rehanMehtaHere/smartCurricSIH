@@ -229,6 +229,36 @@ attendanceCard.addEventListener('click', () => {
 });
 function closeAttendanceModal() { attendanceModal.style.display = 'none'; }
 
+// === Student QR Scanner ===
+function onScanSuccess(decodedText, decodedResult) {
+  document.getElementById('qrResult').textContent = 'Scanned: ' + decodedText;
+  // do whatever with decodedText
+}
+function onScanError(errorMessage) {
+  // optional: console.log(errorMessage);
+}
+const html5QrCode = new Html5Qrcode("reader");
+html5QrCode.start(
+  { facingMode: "environment" },
+  { fps: 10, qrbox: 250 },
+  onScanSuccess,
+  onScanError
+);
+
+// === Teacher QR Generator ===
+const teacherQRDiv = document.getElementById('teacherQR');
+function generateTeacherQR() {
+  teacherQRDiv.innerHTML = ''; // clear old QR
+  // make a random code for demonstration:
+  const code = 'TeacherCode-' + Math.floor(Math.random() * 100000);
+  QRCode.toCanvas(code, { width: 200 }, function (err, canvas) {
+    if (err) console.error(err);
+    teacherQRDiv.appendChild(canvas);
+  });
+}
+generateTeacherQR();
+setInterval(generateTeacherQR, 10000); // regenerate every 10 seconds
+
 // Global exports
 window.closeVideoModal = closeVideoModal;
 window.closeAssignmentsModal = closeAssignmentsModal;
