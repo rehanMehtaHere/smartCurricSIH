@@ -74,6 +74,12 @@
       </div>
     </div>
   </section>
+
+  <section>
+    <h2 style="font-size:1.8rem;font-weight:600;margin-bottom:20px;">Scan QR Code</h2>
+    <div id="reader" style="width:300px;"></div>
+      <p id="qrResult" style="margin-top:10px;color:#4f46e5;font-weight:600;"></p>
+  </section>
 </div>
 
 <!-- Teacher Section -->
@@ -90,6 +96,12 @@
   <input type="file" id="pdfFile" accept="application/pdf" style="margin-top:10px;">
   <button id="uploadBtn" style="margin-top:10px;padding:8px 16px;border:none;border-radius:10px;background:#4f46e5;color:#fff;">Add PDF</button>
   <p style="margin-top:15px;font-size:0.9rem;color:#666;">This will immediately show up in the students' notes modal.</p>
+  
+  <div style="margin-top:30px;">
+  <h2>Your Dynamic QR Code</h2>
+  <div id="teacherQR"></div>
+  <p style="font-size:0.9rem;color:#666;">Regenerates every 10 seconds</p>
+  </div>
 </div>
 
 <!-- Parent Section -->
@@ -141,6 +153,8 @@
 </div>
 
 <!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="script.js"></script>
 </body>
