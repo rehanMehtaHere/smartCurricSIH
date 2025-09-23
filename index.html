@@ -64,6 +64,11 @@
   </section>
 
   <section>
+  <h2 style="font-size:1.8rem;font-weight:600;margin-bottom:20px;">Weekly Schedule</h2>
+  <div class="cards" id="studentScheduleCards"></div>
+  </section>
+
+  <section>
     <h2 style="font-size:1.8rem;font-weight:600;margin-bottom:20px;">Smart Threads</h2>
     <div class="threads">
       <input type="text" id="threadInput" placeholder="Ask a doubt...">
@@ -83,20 +88,21 @@
 <!-- Teacher Section -->
 <div id="teacherSection" style="display:none; padding:20px;">
   <h2>Teacher Dashboard</h2>
+
   <div class="teacher-card">
-    <h3>Upload Notes 📄</h3>
-    <label for="subjectSelect">Select Subject:</label>
-    <select id="subjectSelect">
-      <option>Math</option>
-      <option>Science</option>
-      <option>English</option>
-      <option>History</option>
-    </select>
-    <input type="text" id="pdfName" placeholder="PDF Name">
-    <input type="file" id="pdfFile" accept="application/pdf">
-    <button id="uploadBtn">Add PDF</button>
-    <p class="helper-text">This will immediately show up in the students' notes modal.</p>
+    <h3>Weekly Schedule</h3>
+    <div id="teacherScheduleCards" style = "margin: 20px;"></div>
   </div>
+
+  <div class="teacher-card">
+  <h3>Upload Notes 📄</h3>
+  <label for="sessionSelect">Select Session:</label>
+  <select id="sessionSelect"></select>
+  <input type="text" id="pdfName" placeholder="PDF Name">
+  <input type="file" id="pdfFile" accept="application/pdf">
+  <button id="uploadBtn">Add PDF</button>
+  <p class="helper-text">This will immediately show up in the students' notes modal.</p>
+</div>
 
   <div class="teacher-card" style="margin-top:20px;">
     <h3>Post Announcement 📢</h3>
@@ -106,10 +112,14 @@
   </div>
 
   <div class="teacher-card" style="margin-top:20px;">
-    <h3>Dynamic QR Code 🔑</h3>
-    <div id="teacherQR"></div>
-    <p class="helper-text">Regenerates every 10 seconds.</p>
+  <h3>Dynamic QR Code 🔑</h3>
+  <div>
+    <h4>Assessments</h4>
+    <div id="assessmentButtons"></div>
   </div>
+  <div id="teacherQR" style="margin-top:15px;"></div>
+  <p class="helper-text" id="qrHelperText">Select an assignment to display QR. QR will regenerate 10 times.</p>
+</div>
 </div>
 
 <!-- Parent Section -->
