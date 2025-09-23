@@ -3,22 +3,6 @@ const studentSection = document.getElementById('studentSection');
 const teacherSection = document.getElementById('teacherSection');
 const parentSection = document.getElementById('parentSection');
 
-document.querySelector('.student').addEventListener('click', () => {
-  studentSection.style.display = 'block';
-  teacherSection.style.display = 'none';
-  parentSection.style.display = 'none';
-});
-document.querySelector('.teacher').addEventListener('click', () => {
-  studentSection.style.display = 'none';
-  teacherSection.style.display = 'block';
-  parentSection.style.display = 'none';
-});
-document.querySelector('.parent').addEventListener('click', () => {
-  studentSection.style.display = 'none';
-  teacherSection.style.display = 'none';
-  parentSection.style.display = 'block';
-});
-
 // Teacher upload form (with real PDFs)
 const subjectSelect = document.getElementById('subjectSelect');
 const pdfNameInput = document.getElementById('pdfName');
@@ -201,6 +185,138 @@ input.addEventListener('keypress', function (e) {
   }
 });
 
+const announcementInput = document.getElementById('announcementInput');
+const postAnnouncementBtn = document.getElementById('postAnnouncementBtn');
+
+postAnnouncementBtn.addEventListener('click', () => {
+  const text = announcementInput.value.trim();
+  if (!text) return alert("Enter an announcement!");
+  
+  // Add to global announcements array
+  addAnnouncement(text);
+  announcementInput.value = '';
+});
+
+// Login Section
+const loginModal = document.getElementById('loginModal');
+const loginSubmit = document.getElementById('loginSubmit');
+let currentSection = null;
+
+// Function to show login and store which section was clicked
+function handleSectionClick(section) {
+  currentSection = section; // store which section user wants
+  loginModal.style.display = 'flex';
+}
+
+// Override original section button click listeners
+document.querySelector('.student').addEventListener('click', () => handleSectionClick('student'));
+document.querySelector('.teacher').addEventListener('click', () => handleSectionClick('teacher'));
+document.querySelector('.parent').addEventListener('click', () => handleSectionClick('parent'));
+
+// Tab switching
+const tabButtons = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+
+tabButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    // Activate tab button
+    tabButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Show corresponding tab content
+    const target = btn.dataset.tab;
+    tabContents.forEach(tc => tc.style.display = (tc.id === target ? 'block' : 'none'));
+  });
+});
+
+// Login submit
+loginSubmit.addEventListener('click', () => {
+  const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
+
+  let name, email, password;
+
+  if (activeTab === 'studentTab') {
+    name = document.getElementById('loginNameStudent').value.trim();
+    email = document.getElementById('loginEmailStudent').value.trim();
+    password = document.getElementById('loginPasswordStudent').value.trim();
+  } else if (activeTab === 'teacherTab') {
+    name = document.getElementById('loginNameTeacher').value.trim();
+    email = document.getElementById('loginEmailTeacher').value.trim();
+    password = document.getElementById('loginPasswordTeacher').value.trim();
+  } else if (activeTab === 'parentTab') {
+    name = 'Parent';
+    email = document.getElementById('loginEmailParent').value.trim();
+    password = document.getElementById('loginPasswordParent').value.trim();
+  }
+
+  if (email && password && (activeTab !== 'parentTab' ? name : true)) {
+    loginModal.style.display = 'none';
+
+    // Clear inputs
+    tabContents.forEach(tc => tc.querySelectorAll('input').forEach(i => i.value = ''));
+
+    // Show section based on login type
+    if (activeTab === 'studentTab') {
+      studentSection.style.display = 'block';
+      teacherSection.style.display = 'none';
+      parentSection.style.display = 'none';
+    } else if (activeTab === 'teacherTab') {
+      studentSection.style.display = 'none';
+      teacherSection.style.display = 'block';
+      parentSection.style.display = 'none';
+    } else if (activeTab === 'parentTab') {
+      studentSection.style.display = 'none'
+      teacherSection.style.display = 'none'
+      parentSection.style.display = 'block'
+    }
+  } else {
+    alert('Please fill all the fields!');
+  }
+});
+
+// Login submit
+loginSubmit.addEventListener('click', () => {
+  const name = document.getElementById('loginName').value.trim();
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+
+  if (name && email && password) {
+    // Hide modal
+    loginModal.style.display = 'none';
+
+    // Clear inputs
+    document.getElementById('loginName').value = '';
+    document.getElementById('loginEmail').value = '';
+    document.getElementById('loginPassword').value = '';
+
+    // Show the chosen section
+    studentSection.style.display = currentSection === 'student' ? 'block' : 'none';
+    teacherSection.style.display = currentSection === 'teacher' ? 'block' : 'none';
+    parentSection.style.display = currentSection === 'parent' ? 'block' : 'none';
+  } else {
+    alert('Please fill all the fields!');
+  }
+});
+
+// Parent Section
+const ctxParent = document.getElementById('parentAttendanceChart').getContext('2d');
+new Chart(ctxParent, {
+  type: 'line',
+  data: {
+    labels: ['Week 1','Week 2','Week 3','Week 4','Week 5'],
+    datasets: [{
+      label: 'Attendance %',
+      data: [88, 90, 85, 92, 95],
+      borderColor: '#3b82f6',
+      backgroundColor: 'rgba(59,130,246,0.1)',
+      fill: true,
+      tension: 0.3,
+      pointRadius: 5
+    }]
+  },
+  options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
+});
+
 // Attendance graph
 const attendanceCard = document.getElementById('attendanceCard');
 const attendanceModal = document.getElementById('attendanceModal');
@@ -258,6 +374,45 @@ function generateTeacherQR() {
 }
 generateTeacherQR();
 setInterval(generateTeacherQR, 10000); // regenerate every 10 seconds
+
+// Announcement system
+const announcementsBtn = document.querySelector('.announcement');
+const announcementPopup = document.getElementById('announcementPopup');
+const announcementListDiv = document.getElementById('announcementList');
+
+let announcements = [
+  "Welcome to SmartCurric+ Interactive!",
+  "New Math quiz available this week.",
+  "Science lab sessions start from Monday."
+];
+
+function showAnnouncementPopup() {
+  // Clear the old list
+  announcementListDiv.innerHTML = '';
+
+  // Display announcements (latest first)
+  announcements.slice().reverse().forEach((a, i) => {
+    const div = document.createElement('div');
+    div.className = 'announcement-item';
+    div.textContent = a;
+    announcementListDiv.appendChild(div);
+  });
+
+  announcementPopup.style.display = 'block';
+}
+
+function closeAnnouncementPopup() {
+  announcementPopup.style.display = 'none';
+}
+
+// Trigger popup when button clicked
+announcementsBtn.addEventListener('click', showAnnouncementPopup);
+
+// Example: Add a new announcement dynamically
+function addAnnouncement(text) {
+  announcements.push(text);
+  showAnnouncementPopup();
+}
 
 // Global exports
 window.closeVideoModal = closeVideoModal;
