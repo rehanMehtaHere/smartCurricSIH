@@ -7,18 +7,17 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 <nav>
   <h1>SmartCurric+ <span id="xpCounter" style="font-size:1rem;color:#4f46e5;margin-left:10px;">XP: 0</span></h1>
   <div class="nav-buttons">
     <button class="announcement">Announcement</button>
-    <button class="student">Login</button>
-    <button class="teacher">Login</button>
-    <button class="parent">Login</button>
+    <button class="loginBtn">Login</button>
   </div>
 </nav>
 
 <!-- Student Section -->
-<div id="studentSection">
+<div id="studentSection" style="display:none">
   <section>
     <div class="cards">
       <div class="card attendance" id="attendanceCard">
@@ -61,9 +60,7 @@
 
   <section>
     <h2 style="font-size:1.8rem;font-weight:600;margin-bottom:20px;">Session Recordings</h2>
-    <div class="cards" id="recordingsList">
-      <!-- Recordings will be injected here -->
-    </div>
+    <div class="cards" id="recordingsList"></div>
   </section>
 
   <section>
@@ -79,15 +76,13 @@
   <section>
     <h2 style="font-size:1.8rem;font-weight:600;margin-bottom:20px;">Scan QR Code</h2>
     <div id="reader" style="width:300px;"></div>
-      <p id="qrResult" style="margin-top:10px;color:#4f46e5;font-weight:600;"></p>
+    <p id="qrResult" style="margin-top:10px;color:#4f46e5;font-weight:600;"></p>
   </section>
 </div>
 
 <!-- Teacher Section -->
 <div id="teacherSection" style="display:none; padding:20px;">
   <h2>Teacher Dashboard</h2>
-
-  <!-- Upload Notes -->
   <div class="teacher-card">
     <h3>Upload Notes 📄</h3>
     <label for="subjectSelect">Select Subject:</label>
@@ -103,7 +98,6 @@
     <p class="helper-text">This will immediately show up in the students' notes modal.</p>
   </div>
 
-  <!-- Upload Announcements -->
   <div class="teacher-card" style="margin-top:20px;">
     <h3>Post Announcement 📢</h3>
     <input type="text" id="announcementInput" placeholder="Type your announcement here..." style="width:100%; padding:8px; margin-bottom:10px;">
@@ -111,7 +105,6 @@
     <p class="helper-text">Announcement will appear to all students immediately.</p>
   </div>
 
-  <!-- Teacher QR -->
   <div class="teacher-card" style="margin-top:20px;">
     <h3>Dynamic QR Code 🔑</h3>
     <div id="teacherQR"></div>
@@ -123,14 +116,12 @@
 <div id="parentSection" style="display:none; padding:20px;">
   <h2>Parent Dashboard 🏠</h2>
 
-  <!-- Attendance Card -->
   <div class="parent-card">
     <h3>Student Attendance</h3>
     <p class="big" id="parentAttendance">92%</p>
-    <canvas id="parentAttendanceChart" style="width:20%; height:150px; margin-top:10px;"></canvas>
+    <canvas id="parentAttendanceChart" style="width:100%; height:150px; margin-top:10px;"></canvas>
   </div>
 
-  <!-- Curriculum Progress -->
   <div class="parent-card">
     <h3>Curriculum Progress</h3>
     <div class="cards">
@@ -141,7 +132,6 @@
     </div>
   </div>
 
-  <!-- Recent Activities -->
   <div class="parent-card">
     <h3>Recent Activities</h3>
     <ul id="parentActivities">
@@ -151,14 +141,9 @@
     </ul>
   </div>
 
-  <!-- Notifications / Announcements -->
   <div class="parent-card">
     <h3>Latest Announcements</h3>
-    <div id="parentAnnouncementList">
-      <div class="announcement-item">Welcome to SmartCurric+ Interactive!</div>
-      <div class="announcement-item">New Math quiz available this week.</div>
-      <div class="announcement-item">Science lab sessions start from Monday.</div>
-    </div>
+    <div id="parentAnnouncementList"></div>
   </div>
 </div>
 
@@ -193,6 +178,20 @@
   </div>
 </div>
 
+<div class="modal" id="notesModal">
+  <div class="modal-content">
+    <h3 id="notesTitle">Subject Notes</h3>
+    <div id="notesBody" style="text-align:left;max-height:200px;overflow-y:auto;"></div>
+    <button onclick="closeNotesModal()">Close</button>
+  </div>
+</div>
+
+<div class="announcement-popup" id="announcementPopup">
+  <h3>Announcements</h3>
+  <div id="announcementList"></div>
+  <button onclick="closeAnnouncementPopup()">Close</button>
+</div>
+
 <!-- Login Modal -->
 <div class="login-modal" id="loginModal">
   <div class="login-content">
@@ -224,25 +223,6 @@
   </div>
 </div>
 
-<div class="modal" id="notesModal">
-  <div class="modal-content">
-    <h3 id="notesTitle">Subject Notes</h3>
-    <div id="notesBody" style="text-align:left;max-height:200px;overflow-y:auto;">
-      <!-- PDFs will appear here -->
-    </div>
-    <button onclick="closeNotesModal()">Close</button>
-  </div>
-</div>
-
-<div class="announcement-popup" id="announcementPopup">
-  <h3>Announcements</h3>
-  <div id="announcementList">
-    <!-- Announcements will appear here -->
-  </div>
-  <button onclick="closeAnnouncementPopup()">Close</button>
-</div>
-
-<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
