@@ -56,10 +56,8 @@ nav h1 {
 }
 
 /* Navbar button colors */
-.announcement { background: #3932b8; }
-.student { background: #4f46e5; }
-.teacher { background: #2563eb; }
-.parent { background: #3b82f6; }
+.announcement { background: #4f46e5; }
+.loginBtn { background: #4f46e5; }
 
 /* Sections & Layout */
 section {
