@@ -10,9 +10,10 @@
 <nav>
   <h1>SmartCurric+ <span id="xpCounter" style="font-size:1rem;color:#4f46e5;margin-left:10px;">XP: 0</span></h1>
   <div class="nav-buttons">
-    <button class="student">Student</button>
-    <button class="teacher">Teacher</button>
-    <button class="parent">Parent</button>
+    <button class="announcement">Announcement</button>
+    <button class="student">Login</button>
+    <button class="teacher">Login</button>
+    <button class="parent">Login</button>
   </div>
 </nav>
 
@@ -32,7 +33,7 @@
         </div>
       </div>
       <div class="card" id="assignmentCard">
-        <h2>Smart Assignment</h2>
+        <h2>Smart Assignments</h2>
         <p>AI suggests: 15-min Math quiz</p>
         <button id="assignmentsBtn" style="margin-top:10px;padding:8px 16px;border:none;border-radius:10px;background:#4f46e5;color:#fff;">View Assignments</button>
       </div>
@@ -54,7 +55,7 @@
     <div class="cards">
       <div class="challenge">Attend 5 days in a row<br><small>+50 XP</small></div>
       <div class="challenge" style="background:linear-gradient(45deg,#22c55e,#3b82f6)">Complete 3 Smart Assignments<br><small>+80 XP</small></div>
-      <div class="challenge" style="background:linear-gradient(45deg,#f472b6,#ef4444)">Help a Peer in Smart Threads<br><small>+30 XP</small></div>
+      <div class="challenge" style="background:linear-gradient(45deg,#f472b6,#ef4444)">Use Smart Threads atleast once<br><small>+30 XP</small></div>
     </div>
   </section>
 
@@ -84,31 +85,81 @@
 
 <!-- Teacher Section -->
 <div id="teacherSection" style="display:none; padding:20px;">
-  <h2>Teacher: Upload Notes</h2>
-  <label for="subjectSelect">Select Subject:</label>
-  <select id="subjectSelect">
-    <option>Math</option>
-    <option>Science</option>
-    <option>English</option>
-    <option>History</option>
-  </select>
-  <input type="text" id="pdfName" placeholder="PDF Name" style="margin-top:10px;">
-  <input type="file" id="pdfFile" accept="application/pdf" style="margin-top:10px;">
-  <button id="uploadBtn" style="margin-top:10px;padding:8px 16px;border:none;border-radius:10px;background:#4f46e5;color:#fff;">Add PDF</button>
-  <p style="margin-top:15px;font-size:0.9rem;color:#666;">This will immediately show up in the students' notes modal.</p>
-  
-  <div style="margin-top:30px;">
-  <h2>Your Dynamic QR Code</h2>
-  <div id="teacherQR"></div>
-  <p style="font-size:0.9rem;color:#666;">Regenerates every 10 seconds</p>
+  <h2>Teacher Dashboard</h2>
+
+  <!-- Upload Notes -->
+  <div class="teacher-card">
+    <h3>Upload Notes 📄</h3>
+    <label for="subjectSelect">Select Subject:</label>
+    <select id="subjectSelect">
+      <option>Math</option>
+      <option>Science</option>
+      <option>English</option>
+      <option>History</option>
+    </select>
+    <input type="text" id="pdfName" placeholder="PDF Name">
+    <input type="file" id="pdfFile" accept="application/pdf">
+    <button id="uploadBtn">Add PDF</button>
+    <p class="helper-text">This will immediately show up in the students' notes modal.</p>
+  </div>
+
+  <!-- Upload Announcements -->
+  <div class="teacher-card" style="margin-top:20px;">
+    <h3>Post Announcement 📢</h3>
+    <input type="text" id="announcementInput" placeholder="Type your announcement here..." style="width:100%; padding:8px; margin-bottom:10px;">
+    <button id="postAnnouncementBtn">Post Announcement</button>
+    <p class="helper-text">Announcement will appear to all students immediately.</p>
+  </div>
+
+  <!-- Teacher QR -->
+  <div class="teacher-card" style="margin-top:20px;">
+    <h3>Dynamic QR Code 🔑</h3>
+    <div id="teacherQR"></div>
+    <p class="helper-text">Regenerates every 10 seconds.</p>
   </div>
 </div>
 
 <!-- Parent Section -->
 <div id="parentSection" style="display:none; padding:20px;">
-  <h2>Parent: Overview</h2>
-  <p>Attendance: <span id="parentAttendance">92%</span></p>
-  <p>Progress snapshot will go here (you can fill whatever info you want).</p>
+  <h2>Parent Dashboard 🏠</h2>
+
+  <!-- Attendance Card -->
+  <div class="parent-card">
+    <h3>Student Attendance</h3>
+    <p class="big" id="parentAttendance">92%</p>
+    <canvas id="parentAttendanceChart" style="width:20%; height:150px; margin-top:10px;"></canvas>
+  </div>
+
+  <!-- Curriculum Progress -->
+  <div class="parent-card">
+    <h3>Curriculum Progress</h3>
+    <div class="cards">
+      <div class="card progressCard"><h4>Math</h4><div class="progress-bar"><div class="progress-bar-fill" style="width:40%"></div></div></div>
+      <div class="card progressCard"><h4>Science</h4><div class="progress-bar"><div class="progress-bar-fill" style="width:20%"></div></div></div>
+      <div class="card progressCard"><h4>English</h4><div class="progress-bar"><div class="progress-bar-fill" style="width:60%"></div></div></div>
+      <div class="card progressCard"><h4>History</h4><div class="progress-bar"><div class="progress-bar-fill" style="width:30%"></div></div></div>
+    </div>
+  </div>
+
+  <!-- Recent Activities -->
+  <div class="parent-card">
+    <h3>Recent Activities</h3>
+    <ul id="parentActivities">
+      <li>✅ Completed Math Quiz</li>
+      <li>✅ Uploaded Science Experiment Summary</li>
+      <li>📌 Missed History Assignment</li>
+    </ul>
+  </div>
+
+  <!-- Notifications / Announcements -->
+  <div class="parent-card">
+    <h3>Latest Announcements</h3>
+    <div id="parentAnnouncementList">
+      <div class="announcement-item">Welcome to SmartCurric+ Interactive!</div>
+      <div class="announcement-item">New Math quiz available this week.</div>
+      <div class="announcement-item">Science lab sessions start from Monday.</div>
+    </div>
+  </div>
 </div>
 
 <!-- Toast -->
@@ -142,6 +193,37 @@
   </div>
 </div>
 
+<!-- Login Modal -->
+<div class="login-modal" id="loginModal">
+  <div class="login-content">
+    <h2>Login</h2>
+    <div class="login-tabs">
+      <button class="tab-btn active" data-tab="studentTab">Student</button>
+      <button class="tab-btn" data-tab="teacherTab">Teacher</button>
+      <button class="tab-btn" data-tab="parentTab">Parent</button>
+    </div>
+
+    <div class="tab-content" id="studentTab">
+      <input type="text" id="loginNameStudent" placeholder="Name">
+      <input type="email" id="loginEmailStudent" placeholder="College Email">
+      <input type="password" id="loginPasswordStudent" placeholder="Password">
+    </div>
+
+    <div class="tab-content" id="teacherTab" style="display:none;">
+      <input type="text" id="loginNameTeacher" placeholder="Name">
+      <input type="email" id="loginEmailTeacher" placeholder="College Email">
+      <input type="password" id="loginPasswordTeacher" placeholder="Password">
+    </div>
+
+    <div class="tab-content" id="parentTab" style="display:none;">
+      <input type="email" id="loginEmailParent" placeholder="Student's College Email">
+      <input type="password" id="loginPasswordParent" placeholder="Student's Password">
+    </div>
+
+    <button id="loginSubmit">Login</button>
+  </div>
+</div>
+
 <div class="modal" id="notesModal">
   <div class="modal-content">
     <h3 id="notesTitle">Subject Notes</h3>
@@ -150,6 +232,14 @@
     </div>
     <button onclick="closeNotesModal()">Close</button>
   </div>
+</div>
+
+<div class="announcement-popup" id="announcementPopup">
+  <h3>Announcements</h3>
+  <div id="announcementList">
+    <!-- Announcements will appear here -->
+  </div>
+  <button onclick="closeAnnouncementPopup()">Close</button>
 </div>
 
 <!-- Scripts -->
