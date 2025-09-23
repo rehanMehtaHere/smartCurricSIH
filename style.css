@@ -1,435 +1,339 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+// Sections
+const studentSection = document.getElementById('studentSection');
+const teacherSection = document.getElementById('teacherSection');
+const parentSection = document.getElementById('parentSection');
 
-/* =========================
-   Theme variables & setup
-   ========================= */
-:root{
-  --font-sans: 'Poppins', sans-serif;
+// XP
+let totalXP = 0;
+const xpCounter = document.getElementById('xpCounter');
+function addXP(amount) { totalXP += amount; xpCounter.textContent = 'XP: ' + totalXP; }
 
-  --primary: #4f46e5;       /* main brand purple */
-  --primary-2: #2563eb;     /* secondary blue */
-  --accent: #6366f1;        /* button gradient end */
-  --success: #22c55e;       /* green */
-  --muted: #e5e7eb;         /* light gray surfaces */
-  --surface: #ffffff;       /* card background */
-  --text: #1f2937;          /* main text */
-  --shadow-1: 0 6px 18px rgba(15,23,42,0.06);
-  --shadow-2: 0 4px 10px rgba(15,23,42,0.06);
-  --radius-lg: 18px;
-  --radius-md: 12px;
-  --radius-sm: 8px;
-  --gap: 20px;
-  --bg-1: #e0e7ff;
-  --bg-2: #c7d2fe;
-}
+// Mood
+const moods = document.querySelectorAll('.moods button');
+const toast = document.getElementById('toast');
+moods.forEach(m => m.addEventListener('click', () => {
+  moods.forEach(x => x.classList.remove('active'));
+  m.classList.add('active');
+  showToast('Mood Saved!');
+}));
+function showToast(msg){ toast.textContent = msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),1500); }
 
-/* Reset & Base Styles */
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html,body { height: 100%; }
-body {
-  font-family: var(--font-sans);
-  background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
-  color: var(--text);
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
-}
-
-/* Links & buttons base */
-button { font-family: inherit; }
-button:focus, input:focus, textarea:focus { outline: none; }
-
-/* =========================
-   NAVBAR
-   ========================= */
-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 16px 22px;
-  background: var(--surface);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: var(--shadow-2);
-  border-bottom: 1px solid rgba(99,102,241,0.06);
+// Notes
+const notesModal = document.getElementById('notesModal');
+const notesTitle = document.getElementById('notesTitle');
+const notesBody = document.getElementById('notesBody');
+const notesData = { Math: [], Science: [], English: [], History: [] };
+document.querySelectorAll('.progressCard').forEach(card => card.addEventListener('click', ()=>{
+  const subject = card.querySelector('h3,h4').textContent.trim();
+  notesTitle.textContent = subject + ' Notes';
+  renderNotes(subject);
+  notesModal.style.display = 'flex';
+}));
+function renderNotes(subject){
+  const files = notesData[subject] || [];
+  notesBody.innerHTML = files.length === 0 ? '<p>No notes uploaded yet.</p>' : files.map(f => 
+    `<div style="margin-bottom:15px;"><p>📄 ${f.name}</p><embed src="${f.url}" type="application/pdf" width="100%" height="200px" style="border:1px solid #ddd;border-radius:8px;"></div>`
+  ).join('');
 }
 
-nav h1 {
-  font-size: 1.55rem;
-  color: var(--primary);
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+// Weekly Challenges
+const weeklyChallenge = document.querySelectorAll('.challenge');
+weeklyChallenge.forEach(ch => ch.addEventListener('click', () => {
+  if(!ch.classList.contains('done')){ ch.classList.add('done'); ch.innerHTML='✅ Completed<br><small>XP Added</small>'; addXP(50); }
+}));
+
+// Recordings
+const recordings = [
+  {title:'Math - Algebra Basics',link:'https://example.com/video1.mp4'},
+  {title:'Science - Photosynthesis',link:'https://example.com/video2.mp4'},
+  {title:'English - Reading Comprehension',link:'https://example.com/video3.mp4'},
+  {title:'History - World War II',link:'https://example.com/video4.mp4'}
+];
+const recordingsListDiv = document.getElementById('recordingsList');
+const videoModal = document.getElementById('videoModal');
+const videoPlayer = document.getElementById('videoPlayer');
+const videoTitle = document.getElementById('videoTitle');
+function renderRecordings(){
+  recordingsListDiv.innerHTML='';
+  recordings.forEach((r,i)=>{
+    const div = document.createElement('div'); div.className='card';
+    div.innerHTML=`<h3>${r.title}</h3><button onclick="playRecording(${i})">Play</button>`;
+    recordingsListDiv.appendChild(div);
+  });
+}
+function playRecording(index){ const r=recordings[index]; videoTitle.textContent=r.title; videoPlayer.src=r.link; videoModal.style.display='flex'; }
+function closeVideoModal(){ videoModal.style.display='none'; videoPlayer.pause(); }
+renderRecordings();
+
+// Assignments
+const assignments = [
+  {name:'Math Quiz - 15 min',link:'https://example.com/math-quiz',completed:false,xp:30},
+  {name:'Science Experiment Summary',link:'https://example.com/science-summary',completed:false,xp:30},
+  {name:'English Reading Comprehension',link:'https://example.com/english-reading',completed:false,xp:30},
+  {name:'History Timeline Activity',link:'https://example.com/history-timeline',completed:false,xp:30}
+];
+const assignmentsListDiv = document.getElementById('assignmentsList');
+const assignmentsChallenge = Array.from(weeklyChallenge).find(ch=>ch.innerText.includes('Complete 3 Smart Assignments'));
+function renderAssignments(){
+  assignmentsListDiv.innerHTML='';
+  assignments.forEach((a,i)=>{
+    const div=document.createElement('div');
+    div.className='assignment-item'+(a.completed?' completed':'');
+    div.innerHTML=`<span>${a.completed?'✅ ':''}${a.name}</span><button onclick="startAssignment(${i})">${a.completed?'Restart':'Start Now'}</button>`;
+    assignmentsListDiv.appendChild(div);
+  });
+  const completedCount = assignments.filter(a=>a.completed).length;
+  if(completedCount>=3 && !assignmentsChallenge.classList.contains('done')){
+    assignmentsChallenge.classList.add('done');
+    assignmentsChallenge.innerHTML='✅ Completed<br><small>XP Added</small>';
+    addXP(80);
+  }
+}
+function startAssignment(index){ const a=assignments[index]; window.open(a.link,'_blank'); if(!assignments[index].completed){ assignments[index].completed=true; addXP(a.xp); } renderAssignments(); }
+document.getElementById('assignmentsBtn').addEventListener('click', ()=>{ document.getElementById('assignmentsModal').style.display='flex'; renderAssignments(); });
+function closeAssignmentsModal(){ document.getElementById('assignmentsModal').style.display='none'; }
+
+// Threads
+const input = document.getElementById('threadInput');
+const list = document.getElementById('threadList');
+input.addEventListener('keypress', e=>{
+  if(e.key==='Enter' && input.value.trim()!==''){
+    const div=document.createElement('div'); div.className='thread-item';
+    div.innerHTML=`You asked: “${input.value}”<br><small>AI: generating summary...</small>`;
+    list.prepend(div); input.value='';
+  }
+});
+
+// Login & Section switching
+const loginModal = document.getElementById('loginModal');
+let currentSection=null;
+function handleSectionClick(section){ currentSection=section; loginModal.style.display='flex'; }
+document.querySelector('.loginBtn').addEventListener('click', () => {
+  loginModal.style.display = 'flex';
+});
+
+const tabButtons=document.querySelectorAll('.tab-btn');
+const tabContents=document.querySelectorAll('.tab-content');
+tabButtons.forEach(btn=>btn.addEventListener('click',()=>{
+  tabButtons.forEach(b=>b.classList.remove('active')); btn.classList.add('active');
+  const target=btn.dataset.tab;
+  tabContents.forEach(tc=>tc.style.display=(tc.id===target?'block':'none'));
+}));
+
+document.getElementById('loginSubmit').addEventListener('click',()=>{
+  const activeTab=document.querySelector('.tab-btn.active').dataset.tab;
+  let name,email,password;
+  if(activeTab==='studentTab'){ name=document.getElementById('loginNameStudent').value.trim(); email=document.getElementById('loginEmailStudent').value.trim(); password=document.getElementById('loginPasswordStudent').value.trim(); }
+  else if(activeTab==='teacherTab'){ name=document.getElementById('loginNameTeacher').value.trim(); email=document.getElementById('loginEmailTeacher').value.trim(); password=document.getElementById('loginPasswordTeacher').value.trim(); }
+  else if(activeTab==='parentTab'){ name='Parent'; email=document.getElementById('loginEmailParent').value.trim(); password=document.getElementById('loginPasswordParent').value.trim(); }
+  if(email && password && (activeTab!=='parentTab'?name:true)){
+    loginModal.style.display='none';
+    tabContents.forEach(tc=>tc.querySelectorAll('input').forEach(i=>i.value=''));
+    studentSection.style.display = activeTab==='studentTab'?'block':'none';
+    teacherSection.style.display = activeTab==='teacherTab'?'block':'none';
+    parentSection.style.display = activeTab==='parentTab'?'block':'none';
+  }else alert('Please fill all fields!');
+});
+
+// Parent attendance chart
+new Chart(document.getElementById('parentAttendanceChart').getContext('2d'),{
+  type:'line',
+  data:{labels:['Week 1','Week 2','Week 3','Week 4','Week 5'],datasets:[{label:'Attendance %',data:[88,90,85,92,95],borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.1)',fill:true,tension:0.3,pointRadius:5}]},
+  options:{responsive:true,scales:{y:{beginAtZero:true,max:100}}}
+});
+
+// Attendance card
+const attendanceCard = document.getElementById('attendanceCard');
+const attendanceModal = document.getElementById('attendanceModal');
+let attendanceChart = null;
+attendanceCard.addEventListener('click',()=>{
+  attendanceModal.style.display='flex';
+  if(!attendanceChart){
+    const ctx = document.getElementById('attendanceChart').getContext('2d');
+    attendanceChart = new Chart(ctx,{type:'line',data:{labels:['Week 1','Week 2','Week 3','Week 4','Week 5'],datasets:[{label:'Attendance %',data:[88,90,85,92,95],borderColor:'#4f46e5',backgroundColor:'rgba(79,70,229,0.1)',fill:true,tension:0.3,pointRadius:5}]},options:{responsive:true,scales:{y:{beginAtZero:true,max:100}}}});
+  }
+});
+function closeAttendanceModal(){ attendanceModal.style.display='none'; }
+
+// QR Scanner
+const html5QrCode = new Html5Qrcode("reader");
+html5QrCode.start({facingMode:"environment"},{fps:10,qrbox:250},
+  (decodedText)=>document.getElementById('qrResult').textContent='Scanned: '+decodedText,
+  ()=>{}
+);
+
+// Announcements
+const announcementsBtn=document.querySelector('.announcement');
+const announcementPopup=document.getElementById('announcementPopup');
+const announcementListDiv=document.getElementById('announcementList');
+let announcements=["Welcome to SmartCurric+ Interactive!","New Math quiz available this week.","Science lab sessions start from Monday."];
+function showAnnouncementPopup(){ announcementListDiv.innerHTML=''; announcements.slice().reverse().forEach(a=>{ const div=document.createElement('div'); div.className='announcement-item'; div.textContent=a; announcementListDiv.appendChild(div); }); announcementPopup.style.display='block'; }
+function closeAnnouncementPopup(){ announcementPopup.style.display='none'; }
+announcementsBtn.addEventListener('click',showAnnouncementPopup);
+function addAnnouncement(text){ announcements.push(text); showAnnouncementPopup(); }
+document.getElementById('postAnnouncementBtn')?.addEventListener('click',()=>{
+  const text=document.getElementById('announcementInput').value.trim();
+  if(!text) return alert("Enter an announcement!");
+  addAnnouncement(text); document.getElementById('announcementInput').value='';
+});
+
+// Dummy schedule data, replace/fetch from backend as needed
+const studentSchedule = [
+  {date: '24.9.2025', day: 'Monday', time: '9:00-10:00', subject: 'Math' },
+  {date: '24.9.2025', day: 'Monday', time: '11:00-12:00', subject: 'Science' },
+  {date: '24.9.2025', day: 'Tuesday', time: '9:00-10:00', subject: 'English' },
+  {date: '24.9.2025', day: 'Wednesday', time: '10:00-11:00', subject: 'History' },
+  {date: '24.9.2025', day: 'Thursday', time: '12:00-1:00', subject: 'Math' },
+  {date: '24.9.2025', day: 'Friday', time: '9:00-10:00', subject: 'Science' }
+];
+
+const teacherSchedule = [
+  {date: '24.9.2025', day: 'Monday', time: '9:00-10:00', subject: 'Math - Grade 9' },
+  {date: '24.9.2025', day: 'Tuesday', time: '11:00-12:00', subject: 'Math - Grade 10' },
+  {date: '24.9.2025', day: 'Thursday', time: '1:00-2:00', subject: 'Project Review' }
+];
+
+// teacher qr generator
+const assessmentButtonsDiv = document.getElementById('assessmentButtons'); // container for buttons under Dynamic QR Code
+const teacherQRDiv = document.getElementById('teacherQR');
+const qrHelperText = document.getElementById('qrHelperText');
+
+let qrInterval = null;
+let qrGenCount = 0;
+let currentButton = null;
+
+function generateQRCodeForSession(session) {
+  teacherQRDiv.innerHTML = '';
+  const codeData = `${session.subject}-${Date.now()}`;
+  QRCode.toCanvas(codeData, {width: 200}, (err, canvas) => {
+    if(err) {
+      console.error(err);
+      qrHelperText.textContent = 'Error generating QR code.';
+      return;
+    }
+    teacherQRDiv.appendChild(canvas);
+  });
 }
 
-#xpCounter { font-size: 0.95rem; color: var(--primary); margin-left: 8px; font-weight:600; }
+function onSessionButtonClick(session, buttonElement) {
+  // Clear previous interval if any
+  if(qrInterval) clearInterval(qrInterval);
 
-.nav-buttons {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
-}
+  qrGenCount = 0;
+  currentButton = buttonElement;
+  qrHelperText.textContent = `Showing QR for "${session.subject}". It will regenerate every 10 seconds for 6 times.`;
+  generateQRCodeForSession(session);
 
-/* keep flex:1 1 auto as in your original layout for wide stretch buttons */
-.nav-buttons button {
-  padding: 8px 14px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  color: #fff;
-  font-weight: 600;
-  transition: transform .18s ease, box-shadow .18s ease;
-  flex: 1 1 auto;
-  background: linear-gradient(90deg, var(--primary), var(--accent));
-  box-shadow: 0 6px 16px rgba(79,70,229,0.08);
-}
-.nav-buttons button:hover { transform: translateY(-2px) scale(1.02); }
-
-/* named button colors (kept to match your HTML classes) */
-.announcement { background: linear-gradient(90deg, var(--primary), var(--primary-2)); }
-.loginBtn    { background: linear-gradient(90deg, var(--primary), var(--accent)); }
-
-/* =========================
-   SECTIONS & GRID
-   ========================= */
-section { padding: 22px; }
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--gap);
+  qrInterval = setInterval(() => {
+    qrGenCount++;
+    if(qrGenCount >= 6) {
+      clearInterval(qrInterval);
+      qrHelperText.textContent = `QR regeneration completed for "${session.subject}".`;
+      teacherQRDiv.innerHTML = '';  // Remove QR
+      if(currentButton) {
+        currentButton.style.display = 'none'; // Hide the clicked button
+      }
+      currentButton = null;
+      return;
+    }
+    generateQRCodeForSession(session);
+  }, 10000);
 }
 
-/* =========================
-   CARDS / CHALLENGES
-   ========================= */
-.card, .challenge {
-  background: var(--surface);
-  border-radius: var(--radius-lg);
-  padding: 20px;
-  box-shadow: var(--shadow-1);
-  animation: fadeUp .7s cubic-bezier(.2,.9,.3,1) both;
-  cursor: pointer;
-  transition: transform .18s ease, box-shadow .18s ease;
+function renderSessionButtons() {
+  assessmentButtonsDiv.innerHTML = '';
+  teacherSchedule.forEach((session, idx) => {
+    const btn = document.createElement('button');
+    btn.textContent = `${session.subject}`;
+    btn.className = 'assessment-btn';
+    btn.style.marginRight = '12px';
+    btn.style.marginBottom = '8px';
+    btn.style.padding = '8px 16px';
+    btn.style.borderRadius = '10px';
+    btn.style.border = 'none';
+    btn.style.background = '#4f46e5';
+    btn.style.color = '#fff';
+    btn.style.fontWeight = '600';
+    btn.style.cursor = 'pointer';
+    btn.addEventListener('click', () => onSessionButtonClick(session, btn));
+    assessmentButtonsDiv.appendChild(btn);
+  });
 }
-.card:hover, .challenge:hover { transform: translateY(-6px); box-shadow: 0 18px 40px rgba(15,23,42,0.08); }
+renderSessionButtons();
 
-.attendance p.big {
-  font-size: 2rem;
-  color: var(--success);
-  font-weight: 700;
+// Render for student
+function renderStudentSchedule() {
+  const container = document.getElementById('studentScheduleCards');
+  container.innerHTML = '';
+  studentSchedule.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `<h3>${item.subject}</h3>
+      <p>${item.date} , ${item.day}, ${item.time}</p>`;
+    container.appendChild(div);
+  });
 }
+renderStudentSchedule();
 
-/* =========================
-   MOOD BUTTONS
-   ========================= */
-.moods button {
-  font-size: 1.9rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  margin: 6px;
-  transition: transform .22s ease, color .18s;
+// Render for teacher
+function renderTeacherSchedule() {
+  const container = document.getElementById('teacherScheduleCards');
+  container.innerHTML = '';
+  teacherSchedule.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `<h3>${item.subject}</h3>
+      <p>${item.date} , ${item.day}, ${item.time}</p>`;
+    container.appendChild(div);
+  });
 }
-.moods button.active { transform: scale(1.28) rotate(8deg); color: var(--primary); }
+renderTeacherSchedule();
 
-/* =========================
-   PROGRESS BARS
-   ========================= */
-.progress-bar {
-  width: 100%;
-  background: var(--muted);
-  border-radius: 10px;
-  height: 12px;
-  margin-top: 8px;
-  overflow: hidden;
+// Use teacherSchedule array for sessions
+const sessionSelect = document.getElementById('sessionSelect');
+function populateSessionDropdown() {
+  sessionSelect.innerHTML = '';
+  teacherSchedule.forEach((session, idx) => {
+    const option = document.createElement('option');
+    option.value = idx;
+    option.textContent = `${session.date} , ${session.day} , ${session.time}, ${session.subject}`;
+    sessionSelect.appendChild(option);
+  });
 }
-.progress-bar-fill {
-  height: 12px;
-  background: linear-gradient(90deg, var(--primary), var(--primary-2));
-  width: 0;                 /* set by JS when updating progress */
-  border-radius: 10px;
-  transition: width .5s ease;
-}
+populateSessionDropdown();
 
-/* =========================
-   CHALLENGE STYLES
-   ========================= */
-/* keep the animated float you had */
-.challenge {
-  background: linear-gradient(135deg, var(--primary), var(--primary-2));
-  color: #fff;
-  animation: float 4s ease-in-out infinite;
-}
-.challenge.done { background: var(--success) !important; }
+// Store notes by session index
+const notesDataBySession = {}; // { sessionIdx: [ {name, url} ] }
+const pdfNameInput = document.getElementById('pdfName');
+const pdfFileInput = document.getElementById('pdfFile');
+const uploadBtn = document.getElementById('uploadBtn');
 
-/* =========================
-   THREADS / SMART THREADS
-   ========================= */
-.threads {
-  background: var(--surface);
-  border-radius: var(--radius-lg);
-  padding: 18px;
-  box-shadow: var(--shadow-1);
-}
-.threads input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: var(--radius-md);
-  margin-bottom: 14px;
-  transition: border-color .15s;
-}
-.threads input:focus { border-color: var(--primary); }
-.thread-item {
-  background: #f8fafc;
-  border-radius: var(--radius-md);
-  padding: 12px;
-  margin-bottom: 10px;
-  border: 1px solid rgba(14, 20, 33, 0.03);
-}
+uploadBtn.addEventListener('click', () => {
+  const sessionIdx = sessionSelect.value;
+  const name = pdfNameInput.value.trim();
+  const file = pdfFileInput.files[0];
+  if (!name || !file) return alert('Enter name & choose PDF');
 
-/* =========================
-   TOAST
-   ========================= */
-.toast {
-  position: fixed;
-  right: 20px;
-  bottom: 20px;
-  background: linear-gradient(90deg, var(--primary), var(--accent));
-  color: #fff;
-  padding: 10px 18px;
-  border-radius: 10px;
-  opacity: 0;
-  transform: translateY(14px);
-  transition: opacity .28s ease, transform .28s ease;
-  z-index: 1200;
-}
-.toast.show { opacity: 1; transform: translateY(0); }
+  const url = URL.createObjectURL(file);
 
-/* =========================
-   TEACHER / PARENT CARDS
-   ========================= */
-.teacher-card {
-  background: linear-gradient(180deg, rgba(249,249,255,0.9), var(--surface));
-  padding: 18px;
-  border-radius: 14px;
-  box-shadow: var(--shadow-2);
-  margin-bottom: 20px;
-}
-.teacher-card h3 { color: var(--primary); margin-bottom: 12px; }
+  // Store notes by session index
+  if (!notesDataBySession[sessionIdx]) notesDataBySession[sessionIdx] = [];
+  notesDataBySession[sessionIdx].push({ name, url });
 
-.teacher-card input, .teacher-card select {
-  display: block;
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 9px 10px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  transition: border-color .15s;
-}
-.teacher-card input:focus, .teacher-card select:focus { border-color: var(--primary); }
+  // Map to student subject automatically
+  const subject = teacherSchedule[sessionIdx].subject.split('-')[0].trim(); // extract main subject
+  if (!notesData[subject]) notesData[subject] = [];
+  notesData[subject].push({ name, url });
 
-.teacher-card button {
-  padding: 8px 14px;
-  border-radius: 10px;
-  border: none;
-  background: linear-gradient(90deg, var(--primary), var(--accent));
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform .16s;
-}
-.teacher-card button:hover { transform: translateY(-2px); background: linear-gradient(90deg,#4338ca,var(--primary)); }
+  pdfNameInput.value = '';
+  pdfFileInput.value = '';
 
-.helper-text { font-size: .875rem; color: #666; }
+  alert(`PDF uploaded! It will appear in the ${subject} section for students.`);
+});
 
-/* Parent */
-.parent-card {
-  background: var(--surface);
-  border-radius: var(--radius-lg);
-  padding: 18px;
-  margin-bottom: 18px;
-  box-shadow: var(--shadow-1);
-}
-.parent-card h3 { color: var(--primary-2); margin-bottom: 12px; }
-
-#parentAttendance { font-size: 2rem; color: var(--success); font-weight:700; margin-bottom: 10px; }
-#parentActivities { list-style: none; padding-left: 0; }
-#parentActivities li { padding: 6px 0; border-bottom: 1px solid #eee; font-size: .95rem; }
-#parentActivities li:last-child { border-bottom: none; }
-
-/* fallback/keyed announcement item (keeps compatibility) */
-#parentAnnouncementList .announcement-item {
-  margin-bottom: 8px;
-  padding: 6px 8px;
-  border-radius: var(--radius-sm);
-  background: #f3f4f6;
-  font-size: .9rem;
-}
-
-/* =========================
-   MODALS
-   ========================= */
-.modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  justify-content: center;
-  align-items: center;
-  z-index: 1300;
-}
-.modal-content {
-  background: var(--surface);
-  padding: 18px;
-  border-radius: 12px;
-  max-width: 480px;
-  width: 92%;
-  text-align: center;
-  box-shadow: 0 12px 36px rgba(15,23,42,0.12);
-}
-.modal-content button {
-  margin-top: 12px;
-  padding: 8px 16px;
-  border-radius: 10px;
-  border: none;
-  background: linear-gradient(90deg, var(--primary), var(--accent));
-  color: #fff;
-  cursor: pointer;
-}
-
-/* =========================
-   ASSIGNMENTS / RECORDINGS
-   ========================= */
-.assignment-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 0;
-  border-bottom: 1px solid #eee;
-}
-.assignment-item.completed span { color: var(--success); font-weight: 700; }
-.assignment-item:last-child { border-bottom: none; }
-
-#recordingsList .card button {
-  background: linear-gradient(90deg,var(--primary),var(--primary-2));
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  padding: 10px 18px;
-  font-weight: 600;
-  width: 100%;
-  cursor: pointer;
-  transition: transform .18s, box-shadow .18s;
-}
-#recordingsList .card button:hover { transform: scale(1.03); box-shadow: 0 8px 20px rgba(37,99,235,0.12); }
-
-/* =========================
-   LOGIN MODAL (kept display: flex to match your previous CSS)
-   NOTE: if you want it hidden by default, toggle via JS (display: none)
-   ========================= */
-.login-modal {
-  display: flex; /* preserved from your last CSS - toggle with JS if needed */
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.9);
-  justify-content: center;
-  align-items: center;
-  z-index: 1400;
-}
-.login-content {
-  background: var(--surface);
-  padding: 26px;
-  border-radius: 15px;
-  text-align: center;
-  max-width: 420px;
-  width: 92%;
-  box-shadow: 0 14px 40px rgba(2,6,23,0.16);
-}
-.login-content h2 { margin-bottom: 18px; color: var(--primary); }
-.login-content input {
-  display: block; width: 100%; padding: 10px 12px; margin-bottom: 14px;
-  border-radius: 10px; border: 1px solid #ddd;
-}
-.login-content input:focus { border-color: var(--primary); }
-.login-content button {
-  padding: 10px 20px; border-radius: 12px; border: none;
-  background: linear-gradient(90deg,var(--primary),var(--accent)); color: #fff; font-weight: 600; cursor: pointer;
-}
-
-/* Tabs inside login */
-.login-tabs { display: flex; justify-content: space-around; gap: 8px; margin-bottom: 12px; }
-.login-tabs .tab-btn {
-  flex: 1; padding: 9px 0; border-radius: 10px 10px 0 0; border: none; cursor: pointer;
-  background: #eef2ff; color: #333; font-weight: 600;
-}
-.login-tabs .tab-btn.active { background: var(--primary); color: #fff; }
-
-/* =========================
-   ANNOUNCEMENT POPUP
-   ========================= */
-.announcement-popup {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  width: 320px;
-  max-height: 420px;
-  overflow-y: auto;
-  background: var(--surface);
-  border: 1px solid rgba(79,70,229,0.14);
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(2,6,23,0.12);
-  padding: 14px;
-  display: none;
-  z-index: 1500;
-}
-.announcement-popup h3 { margin-top: 0; font-size: 1.1rem; color: var(--primary); }
-.announcement-item {
-  margin-bottom: 10px; padding: 8px; border-radius: 8px; background: #f3f4f6; font-size: .95rem; border: 1px solid #eee;
-}
-.announcement-popup button {
-  margin-top: 10px; padding: 6px 12px; border-radius: 8px; border: none; background: linear-gradient(90deg,var(--primary),var(--accent)); color:#fff; cursor:pointer;
-}
-
-/* =========================
-   Animations / keyframes
-   ========================= */
-@keyframes fadeUp {
-  from { transform: translateY(18px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
-}
-@keyframes float {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0); }
-}
-
-/* =========================
-   Responsive tweaks
-   ========================= */
-@media (max-width: 640px) {
-  .cards { gap: 16px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
-  section { padding: 18px; }
-  nav { padding: 12px 14px; }
-  .nav-buttons { flex-direction: column; width: 100%; }
-  .nav-buttons button { flex: unset; width: 100%; }
-}
-
-@media (max-width: 420px) {
-  .nav h1 { font-size: 1.25rem; }
-  .card, .challenge { padding: 16px; border-radius: 14px; }
-  .announcement-popup { width: 92vw; left: 4vw; right: 4vw; top: 14px; }
-}
-
-/* =========================
-   Small accessibility helpers
-   ========================= */
-button:focus-visible, input:focus-visible, select:focus-visible {
-  box-shadow: 0 0 0 4px rgba(79,70,229,0.12);
-  border-radius: 10px;
-}
+// Global exports
+window.closeVideoModal=closeVideoModal;
+window.closeAssignmentsModal=closeAssignmentsModal;
+window.closeAttendanceModal=closeAttendanceModal;
+window.closeNotesModal=()=>notesModal.style.display='none';
+window.playRecording=playRecording;
