@@ -1,422 +1,210 @@
-// Section switching
+// Sections
 const studentSection = document.getElementById('studentSection');
 const teacherSection = document.getElementById('teacherSection');
 const parentSection = document.getElementById('parentSection');
 
-// Teacher upload form (with real PDFs)
-const subjectSelect = document.getElementById('subjectSelect');
-const pdfNameInput = document.getElementById('pdfName');
-const pdfFileInput = document.getElementById('pdfFile'); // change input type="file" in HTML
-const uploadBtn = document.getElementById('uploadBtn');
-
-const notesData = { Math: [], Science: [], English: [], History: [] };
-
-uploadBtn.addEventListener('click', () => {
-  const subject = subjectSelect.value;
-  const name = pdfNameInput.value.trim();
-  const file = pdfFileInput.files[0];
-
-  if (!name || !file) {
-    alert('Please enter a name and choose a PDF file.');
-    return;
-  }
-
-  const url = URL.createObjectURL(file); // create temporary local URL
-
-  notesData[subject].push({ name, url });
-
-  pdfNameInput.value = '';
-  pdfFileInput.value = '';
-  alert('PDF uploaded! Students can now see it.');
-});
-
-// XP system
+// XP
 let totalXP = 0;
 const xpCounter = document.getElementById('xpCounter');
-function addXP(amount) {
-  totalXP += amount;
-  xpCounter.textContent = 'XP: ' + totalXP;
-}
+function addXP(amount) { totalXP += amount; xpCounter.textContent = 'XP: ' + totalXP; }
 
-// Mood check
+// Mood
 const moods = document.querySelectorAll('.moods button');
 const toast = document.getElementById('toast');
-moods.forEach(m => {
-  m.addEventListener('click', () => {
-    moods.forEach(x => x.classList.remove('active'));
-    m.classList.add('active');
-    showToast('Mood Saved!');
-  });
-});
-function showToast(msg) {
-  toast.textContent = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 1500);
-}
+moods.forEach(m => m.addEventListener('click', () => {
+  moods.forEach(x => x.classList.remove('active'));
+  m.classList.add('active');
+  showToast('Mood Saved!');
+}));
+function showToast(msg){ toast.textContent = msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),1500); }
 
-// Progress cards also open Notes modal
+// Notes
 const notesModal = document.getElementById('notesModal');
 const notesTitle = document.getElementById('notesTitle');
 const notesBody = document.getElementById('notesBody');
-
-document.querySelectorAll('.progressCard').forEach(card => {
-  card.addEventListener('click', () => {
-    const subject = card.querySelector('h3').textContent.trim();
-    notesTitle.textContent = subject + ' Notes';
-    renderNotes(subject);
-    notesModal.style.display = 'flex';
-  });
-});
-
-function renderNotes(subject) {
+const notesData = { Math: [], Science: [], English: [], History: [] };
+document.querySelectorAll('.progressCard').forEach(card => card.addEventListener('click', ()=>{
+  const subject = card.querySelector('h3,h4').textContent.trim();
+  notesTitle.textContent = subject + ' Notes';
+  renderNotes(subject);
+  notesModal.style.display = 'flex';
+}));
+function renderNotes(subject){
   const files = notesData[subject] || [];
-  if (files.length === 0) {
-    notesBody.innerHTML = '<p>No notes uploaded yet.</p>';
-  } else {
-    notesBody.innerHTML = files.map(f =>
-      `<div style="margin-bottom:15px;">
-         <p>📄 ${f.name}</p>
-         <embed src="${f.url}" type="application/pdf" width="100%" height="200px" style="border:1px solid #ddd;border-radius:8px;">
-       </div>`
-    ).join('');
-  }
+  notesBody.innerHTML = files.length === 0 ? '<p>No notes uploaded yet.</p>' : files.map(f => 
+    `<div style="margin-bottom:15px;"><p>📄 ${f.name}</p><embed src="${f.url}" type="application/pdf" width="100%" height="200px" style="border:1px solid #ddd;border-radius:8px;"></div>`
+  ).join('');
 }
 
-// Weekly challenges
-const weeklyChallenge = document.querySelectorAll('.challenge');
-weeklyChallenge.forEach(ch => {
-  ch.addEventListener('click', () => {
-    if (!ch.classList.contains('done')) {
-      ch.classList.add('done');
-      ch.innerHTML = '✅ Completed<br><small>XP Added</small>';
-      addXP(50);
-    }
-  });
+// Teacher upload
+const subjectSelect = document.getElementById('subjectSelect');
+const pdfNameInput = document.getElementById('pdfName');
+const pdfFileInput = document.getElementById('pdfFile');
+const uploadBtn = document.getElementById('uploadBtn');
+uploadBtn.addEventListener('click', ()=>{
+  const subject = subjectSelect.value;
+  const name = pdfNameInput.value.trim();
+  const file = pdfFileInput.files[0];
+  if(!name||!file) return alert('Enter name & choose PDF');
+  const url = URL.createObjectURL(file);
+  notesData[subject].push({name,url});
+  pdfNameInput.value=''; pdfFileInput.value='';
+  alert('PDF uploaded!');
 });
 
-// Session recordings
-const recordings = [
-  { title: 'Math - Algebra Basics', link: 'https://example.com/video1.mp4' },
-  { title: 'Science - Photosynthesis', link: 'https://example.com/video2.mp4' },
-  { title: 'English - Reading Comprehension', link: 'https://example.com/video3.mp4' },
-  { title: 'History - World War II', link: 'https://example.com/video4.mp4' }
-];
+// Weekly Challenges
+const weeklyChallenge = document.querySelectorAll('.challenge');
+weeklyChallenge.forEach(ch => ch.addEventListener('click', () => {
+  if(!ch.classList.contains('done')){ ch.classList.add('done'); ch.innerHTML='✅ Completed<br><small>XP Added</small>'; addXP(50); }
+}));
 
+// Recordings
+const recordings = [
+  {title:'Math - Algebra Basics',link:'https://example.com/video1.mp4'},
+  {title:'Science - Photosynthesis',link:'https://example.com/video2.mp4'},
+  {title:'English - Reading Comprehension',link:'https://example.com/video3.mp4'},
+  {title:'History - World War II',link:'https://example.com/video4.mp4'}
+];
 const recordingsListDiv = document.getElementById('recordingsList');
 const videoModal = document.getElementById('videoModal');
 const videoPlayer = document.getElementById('videoPlayer');
 const videoTitle = document.getElementById('videoTitle');
-
-function renderRecordings() {
-  recordingsListDiv.innerHTML = '';
-  recordings.forEach((r, i) => {
-    const div = document.createElement('div');
-    div.className = 'card';
-    div.innerHTML = `<h3>${r.title}</h3>
-      <button onclick="playRecording(${i})">Play</button>`;
+function renderRecordings(){
+  recordingsListDiv.innerHTML='';
+  recordings.forEach((r,i)=>{
+    const div = document.createElement('div'); div.className='card';
+    div.innerHTML=`<h3>${r.title}</h3><button onclick="playRecording(${i})">Play</button>`;
     recordingsListDiv.appendChild(div);
   });
 }
-function playRecording(index) {
-  const r = recordings[index];
-  videoTitle.textContent = r.title;
-  videoPlayer.src = r.link;
-  videoModal.style.display = 'flex';
-}
-function closeVideoModal() {
-  videoModal.style.display = 'none';
-  videoPlayer.pause();
-}
+function playRecording(index){ const r=recordings[index]; videoTitle.textContent=r.title; videoPlayer.src=r.link; videoModal.style.display='flex'; }
+function closeVideoModal(){ videoModal.style.display='none'; videoPlayer.pause(); }
 renderRecordings();
 
 // Assignments
 const assignments = [
-  { name: 'Math Quiz - 15 min', link: 'https://example.com/math-quiz', completed: false, xp: 30 },
-  { name: 'Science Experiment Summary', link: 'https://example.com/science-summary', completed: false, xp: 30 },
-  { name: 'English Reading Comprehension', link: 'https://example.com/english-reading', completed: false, xp: 30 },
-  { name: 'History Timeline Activity', link: 'https://example.com/history-timeline', completed: false, xp: 30 }
+  {name:'Math Quiz - 15 min',link:'https://example.com/math-quiz',completed:false,xp:30},
+  {name:'Science Experiment Summary',link:'https://example.com/science-summary',completed:false,xp:30},
+  {name:'English Reading Comprehension',link:'https://example.com/english-reading',completed:false,xp:30},
+  {name:'History Timeline Activity',link:'https://example.com/history-timeline',completed:false,xp:30}
 ];
-
 const assignmentsListDiv = document.getElementById('assignmentsList');
-const assignmentsChallenge = Array.from(weeklyChallenge).find(ch => ch.innerText.includes('Complete 3 Smart Assignments'));
-
-function renderAssignments() {
-  assignmentsListDiv.innerHTML = '';
-  assignments.forEach((a, i) => {
-    const div = document.createElement('div');
-    div.className = 'assignment-item' + (a.completed ? ' completed' : '');
-    div.innerHTML = `<span>${a.completed ? '✅ ' : ''}${a.name}</span>
-                     <button onclick="startAssignment(${i})">${a.completed ? 'Restart' : 'Start Now'}</button>`;
+const assignmentsChallenge = Array.from(weeklyChallenge).find(ch=>ch.innerText.includes('Complete 3 Smart Assignments'));
+function renderAssignments(){
+  assignmentsListDiv.innerHTML='';
+  assignments.forEach((a,i)=>{
+    const div=document.createElement('div');
+    div.className='assignment-item'+(a.completed?' completed':'');
+    div.innerHTML=`<span>${a.completed?'✅ ':''}${a.name}</span><button onclick="startAssignment(${i})">${a.completed?'Restart':'Start Now'}</button>`;
     assignmentsListDiv.appendChild(div);
   });
-
-  const completedCount = assignments.filter(a => a.completed).length;
-  if (completedCount >= 3 && !assignmentsChallenge.classList.contains('done')) {
+  const completedCount = assignments.filter(a=>a.completed).length;
+  if(completedCount>=3 && !assignmentsChallenge.classList.contains('done')){
     assignmentsChallenge.classList.add('done');
-    assignmentsChallenge.innerHTML = '✅ Completed<br><small>XP Added</small>';
+    assignmentsChallenge.innerHTML='✅ Completed<br><small>XP Added</small>';
     addXP(80);
   }
 }
-function startAssignment(index) {
-  const a = assignments[index];
-  window.open(a.link, '_blank');
-  if (!assignments[index].completed) {
-    assignments[index].completed = true;
-    addXP(a.xp);
-  }
-  renderAssignments();
-}
-document.getElementById('assignmentsBtn').addEventListener('click', () => {
-  document.getElementById('assignmentsModal').style.display = 'flex';
-  renderAssignments();
-});
-function closeAssignmentsModal() { document.getElementById('assignmentsModal').style.display = 'none'; }
+function startAssignment(index){ const a=assignments[index]; window.open(a.link,'_blank'); if(!assignments[index].completed){ assignments[index].completed=true; addXP(a.xp); } renderAssignments(); }
+document.getElementById('assignmentsBtn').addEventListener('click', ()=>{ document.getElementById('assignmentsModal').style.display='flex'; renderAssignments(); });
+function closeAssignmentsModal(){ document.getElementById('assignmentsModal').style.display='none'; }
 
 // Threads
 const input = document.getElementById('threadInput');
 const list = document.getElementById('threadList');
-input.addEventListener('keypress', function (e) {
-  if (e.key === 'Enter' && this.value.trim() !== '') {
-    const div = document.createElement('div');
-    div.className = 'thread-item';
-    div.innerHTML = `You asked: “${this.value}”<br><small>AI: generating summary...</small>`;
-    list.prepend(div);
-    this.value = '';
+input.addEventListener('keypress', e=>{
+  if(e.key==='Enter' && input.value.trim()!==''){
+    const div=document.createElement('div'); div.className='thread-item';
+    div.innerHTML=`You asked: “${input.value}”<br><small>AI: generating summary...</small>`;
+    list.prepend(div); input.value='';
   }
 });
 
-const announcementInput = document.getElementById('announcementInput');
-const postAnnouncementBtn = document.getElementById('postAnnouncementBtn');
-
-postAnnouncementBtn.addEventListener('click', () => {
-  const text = announcementInput.value.trim();
-  if (!text) return alert("Enter an announcement!");
-  
-  // Add to global announcements array
-  addAnnouncement(text);
-  announcementInput.value = '';
-});
-
-// Login Section
+// Login & Section switching
 const loginModal = document.getElementById('loginModal');
-const loginSubmit = document.getElementById('loginSubmit');
-let currentSection = null;
-
-// Function to show login and store which section was clicked
-function handleSectionClick(section) {
-  currentSection = section; // store which section user wants
+let currentSection=null;
+function handleSectionClick(section){ currentSection=section; loginModal.style.display='flex'; }
+document.querySelector('.loginBtn').addEventListener('click', () => {
   loginModal.style.display = 'flex';
-}
-
-// Override original section button click listeners
-document.querySelector('.student').addEventListener('click', () => handleSectionClick('student'));
-document.querySelector('.teacher').addEventListener('click', () => handleSectionClick('teacher'));
-document.querySelector('.parent').addEventListener('click', () => handleSectionClick('parent'));
-
-// Tab switching
-const tabButtons = document.querySelectorAll('.tab-btn');
-const tabContents = document.querySelectorAll('.tab-content');
-
-tabButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    // Activate tab button
-    tabButtons.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    // Show corresponding tab content
-    const target = btn.dataset.tab;
-    tabContents.forEach(tc => tc.style.display = (tc.id === target ? 'block' : 'none'));
-  });
 });
 
-// Login submit
-loginSubmit.addEventListener('click', () => {
-  const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
+const tabButtons=document.querySelectorAll('.tab-btn');
+const tabContents=document.querySelectorAll('.tab-content');
+tabButtons.forEach(btn=>btn.addEventListener('click',()=>{
+  tabButtons.forEach(b=>b.classList.remove('active')); btn.classList.add('active');
+  const target=btn.dataset.tab;
+  tabContents.forEach(tc=>tc.style.display=(tc.id===target?'block':'none'));
+}));
 
-  let name, email, password;
-
-  if (activeTab === 'studentTab') {
-    name = document.getElementById('loginNameStudent').value.trim();
-    email = document.getElementById('loginEmailStudent').value.trim();
-    password = document.getElementById('loginPasswordStudent').value.trim();
-  } else if (activeTab === 'teacherTab') {
-    name = document.getElementById('loginNameTeacher').value.trim();
-    email = document.getElementById('loginEmailTeacher').value.trim();
-    password = document.getElementById('loginPasswordTeacher').value.trim();
-  } else if (activeTab === 'parentTab') {
-    name = 'Parent';
-    email = document.getElementById('loginEmailParent').value.trim();
-    password = document.getElementById('loginPasswordParent').value.trim();
-  }
-
-  if (email && password && (activeTab !== 'parentTab' ? name : true)) {
-    loginModal.style.display = 'none';
-
-    // Clear inputs
-    tabContents.forEach(tc => tc.querySelectorAll('input').forEach(i => i.value = ''));
-
-    // Show section based on login type
-    if (activeTab === 'studentTab') {
-      studentSection.style.display = 'block';
-      teacherSection.style.display = 'none';
-      parentSection.style.display = 'none';
-    } else if (activeTab === 'teacherTab') {
-      studentSection.style.display = 'none';
-      teacherSection.style.display = 'block';
-      parentSection.style.display = 'none';
-    } else if (activeTab === 'parentTab') {
-      studentSection.style.display = 'none'
-      teacherSection.style.display = 'none'
-      parentSection.style.display = 'block'
-    }
-  } else {
-    alert('Please fill all the fields!');
-  }
+document.getElementById('loginSubmit').addEventListener('click',()=>{
+  const activeTab=document.querySelector('.tab-btn.active').dataset.tab;
+  let name,email,password;
+  if(activeTab==='studentTab'){ name=document.getElementById('loginNameStudent').value.trim(); email=document.getElementById('loginEmailStudent').value.trim(); password=document.getElementById('loginPasswordStudent').value.trim(); }
+  else if(activeTab==='teacherTab'){ name=document.getElementById('loginNameTeacher').value.trim(); email=document.getElementById('loginEmailTeacher').value.trim(); password=document.getElementById('loginPasswordTeacher').value.trim(); }
+  else if(activeTab==='parentTab'){ name='Parent'; email=document.getElementById('loginEmailParent').value.trim(); password=document.getElementById('loginPasswordParent').value.trim(); }
+  if(email && password && (activeTab!=='parentTab'?name:true)){
+    loginModal.style.display='none';
+    tabContents.forEach(tc=>tc.querySelectorAll('input').forEach(i=>i.value=''));
+    studentSection.style.display = activeTab==='studentTab'?'block':'none';
+    teacherSection.style.display = activeTab==='teacherTab'?'block':'none';
+    parentSection.style.display = activeTab==='parentTab'?'block':'none';
+  }else alert('Please fill all fields!');
 });
 
-// Login submit
-loginSubmit.addEventListener('click', () => {
-  const name = document.getElementById('loginName').value.trim();
-  const email = document.getElementById('loginEmail').value.trim();
-  const password = document.getElementById('loginPassword').value.trim();
-
-  if (name && email && password) {
-    // Hide modal
-    loginModal.style.display = 'none';
-
-    // Clear inputs
-    document.getElementById('loginName').value = '';
-    document.getElementById('loginEmail').value = '';
-    document.getElementById('loginPassword').value = '';
-
-    // Show the chosen section
-    studentSection.style.display = currentSection === 'student' ? 'block' : 'none';
-    teacherSection.style.display = currentSection === 'teacher' ? 'block' : 'none';
-    parentSection.style.display = currentSection === 'parent' ? 'block' : 'none';
-  } else {
-    alert('Please fill all the fields!');
-  }
+// Parent attendance chart
+new Chart(document.getElementById('parentAttendanceChart').getContext('2d'),{
+  type:'line',
+  data:{labels:['Week 1','Week 2','Week 3','Week 4','Week 5'],datasets:[{label:'Attendance %',data:[88,90,85,92,95],borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.1)',fill:true,tension:0.3,pointRadius:5}]},
+  options:{responsive:true,scales:{y:{beginAtZero:true,max:100}}}
 });
 
-// Parent Section
-const ctxParent = document.getElementById('parentAttendanceChart').getContext('2d');
-new Chart(ctxParent, {
-  type: 'line',
-  data: {
-    labels: ['Week 1','Week 2','Week 3','Week 4','Week 5'],
-    datasets: [{
-      label: 'Attendance %',
-      data: [88, 90, 85, 92, 95],
-      borderColor: '#3b82f6',
-      backgroundColor: 'rgba(59,130,246,0.1)',
-      fill: true,
-      tension: 0.3,
-      pointRadius: 5
-    }]
-  },
-  options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
-});
-
-// Attendance graph
+// Attendance card
 const attendanceCard = document.getElementById('attendanceCard');
 const attendanceModal = document.getElementById('attendanceModal');
 let attendanceChart = null;
-attendanceCard.addEventListener('click', () => {
-  attendanceModal.style.display = 'flex';
-  if (!attendanceChart) {
+attendanceCard.addEventListener('click',()=>{
+  attendanceModal.style.display='flex';
+  if(!attendanceChart){
     const ctx = document.getElementById('attendanceChart').getContext('2d');
-    attendanceChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
-        datasets: [{
-          label: 'Attendance %',
-          data: [88, 90, 85, 92, 95],
-          borderColor: '#4f46e5',
-          backgroundColor: 'rgba(79,70,229,0.1)',
-          tension: 0.3,
-          fill: true,
-          pointRadius: 5
-        }]
-      },
-      options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
-    });
+    attendanceChart = new Chart(ctx,{type:'line',data:{labels:['Week 1','Week 2','Week 3','Week 4','Week 5'],datasets:[{label:'Attendance %',data:[88,90,85,92,95],borderColor:'#4f46e5',backgroundColor:'rgba(79,70,229,0.1)',fill:true,tension:0.3,pointRadius:5}]},options:{responsive:true,scales:{y:{beginAtZero:true,max:100}}}});
   }
 });
-function closeAttendanceModal() { attendanceModal.style.display = 'none'; }
+function closeAttendanceModal(){ attendanceModal.style.display='none'; }
 
-// === Student QR Scanner ===
-function onScanSuccess(decodedText, decodedResult) {
-  document.getElementById('qrResult').textContent = 'Scanned: ' + decodedText;
-  // do whatever with decodedText
-}
-function onScanError(errorMessage) {
-  // optional: console.log(errorMessage);
-}
+// QR Scanner
 const html5QrCode = new Html5Qrcode("reader");
-html5QrCode.start(
-  { facingMode: "environment" },
-  { fps: 10, qrbox: 250 },
-  onScanSuccess,
-  onScanError
+html5QrCode.start({facingMode:"environment"},{fps:10,qrbox:250},
+  (decodedText)=>document.getElementById('qrResult').textContent='Scanned: '+decodedText,
+  ()=>{}
 );
 
-// === Teacher QR Generator ===
-const teacherQRDiv = document.getElementById('teacherQR');
-function generateTeacherQR() {
-  teacherQRDiv.innerHTML = ''; // clear old QR
-  // make a random code for demonstration:
-  const code = 'TeacherCode-' + Math.floor(Math.random() * 100000);
-  QRCode.toCanvas(code, { width: 200 }, function (err, canvas) {
-    if (err) console.error(err);
-    teacherQRDiv.appendChild(canvas);
-  });
+// Teacher QR Generator
+const teacherQRDiv=document.getElementById('teacherQR');
+function generateTeacherQR(){
+  teacherQRDiv.innerHTML='';
+  const code='TeacherCode-'+Math.floor(Math.random()*100000);
+  QRCode.toCanvas(code,{width:200},(err,canvas)=>{if(err) console.error(err); teacherQRDiv.appendChild(canvas);});
 }
-generateTeacherQR();
-setInterval(generateTeacherQR, 10000); // regenerate every 10 seconds
+generateTeacherQR(); setInterval(generateTeacherQR,10000);
 
-// Announcement system
-const announcementsBtn = document.querySelector('.announcement');
-const announcementPopup = document.getElementById('announcementPopup');
-const announcementListDiv = document.getElementById('announcementList');
-
-let announcements = [
-  "Welcome to SmartCurric+ Interactive!",
-  "New Math quiz available this week.",
-  "Science lab sessions start from Monday."
-];
-
-function showAnnouncementPopup() {
-  // Clear the old list
-  announcementListDiv.innerHTML = '';
-
-  // Display announcements (latest first)
-  announcements.slice().reverse().forEach((a, i) => {
-    const div = document.createElement('div');
-    div.className = 'announcement-item';
-    div.textContent = a;
-    announcementListDiv.appendChild(div);
-  });
-
-  announcementPopup.style.display = 'block';
-}
-
-function closeAnnouncementPopup() {
-  announcementPopup.style.display = 'none';
-}
-
-// Trigger popup when button clicked
-announcementsBtn.addEventListener('click', showAnnouncementPopup);
-
-// Example: Add a new announcement dynamically
-function addAnnouncement(text) {
-  announcements.push(text);
-  showAnnouncementPopup();
-}
+// Announcements
+const announcementsBtn=document.querySelector('.announcement');
+const announcementPopup=document.getElementById('announcementPopup');
+const announcementListDiv=document.getElementById('announcementList');
+let announcements=["Welcome to SmartCurric+ Interactive!","New Math quiz available this week.","Science lab sessions start from Monday."];
+function showAnnouncementPopup(){ announcementListDiv.innerHTML=''; announcements.slice().reverse().forEach(a=>{ const div=document.createElement('div'); div.className='announcement-item'; div.textContent=a; announcementListDiv.appendChild(div); }); announcementPopup.style.display='block'; }
+function closeAnnouncementPopup(){ announcementPopup.style.display='none'; }
+announcementsBtn.addEventListener('click',showAnnouncementPopup);
+function addAnnouncement(text){ announcements.push(text); showAnnouncementPopup(); }
+document.getElementById('postAnnouncementBtn')?.addEventListener('click',()=>{
+  const text=document.getElementById('announcementInput').value.trim();
+  if(!text) return alert("Enter an announcement!");
+  addAnnouncement(text); document.getElementById('announcementInput').value='';
+});
 
 // Global exports
-window.closeVideoModal = closeVideoModal;
-window.closeAssignmentsModal = closeAssignmentsModal;
-window.closeAttendanceModal = closeAttendanceModal;
-window.closeNotesModal = () => notesModal.style.display = 'none';
-window.playRecording = playRecording;
+window.closeVideoModal=closeVideoModal;
+window.closeAssignmentsModal=closeAssignmentsModal;
+window.closeAttendanceModal=closeAttendanceModal;
+window.closeNotesModal=()=>notesModal.style.display='none';
+window.playRecording=playRecording;
