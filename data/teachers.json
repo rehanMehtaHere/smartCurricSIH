@@ -1,0 +1,4 @@
+[
+  { "id": 1, "name": "Mr. Smith", "email": "smith@school.com", "password": "teach123", "schedule": [], "announcements": [] },
+  { "id": 2, "name": "Ms. Lee", "email": "lee@school.com", "password": "teach123", "schedule": [], "announcements": [] }
+]

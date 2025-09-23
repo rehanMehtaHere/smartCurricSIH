@@ -1,0 +1,4 @@
+[
+  { "name": "Math Quiz - 15 min", "link": "https://example.com/math-quiz", "completed": false, "xp": 30 },
+  { "name": "Science Experiment Summary", "link": "https://example.com/science-summary", "completed": false, "xp": 30 }
+]

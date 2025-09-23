@@ -1,0 +1,4 @@
+[
+  { "id": 1, "name": "Alice", "email": "alice@school.com", "password": "pass123", "xp": 120, "assignments": [], "notes": {} },
+  { "id": 2, "name": "Bob", "email": "bob@school.com", "password": "pass123", "xp": 85, "assignments": [], "notes": {} }
+]
