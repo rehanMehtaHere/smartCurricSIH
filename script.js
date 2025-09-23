@@ -36,22 +36,6 @@ function renderNotes(subject){
   ).join('');
 }
 
-// Teacher upload
-const subjectSelect = document.getElementById('subjectSelect');
-const pdfNameInput = document.getElementById('pdfName');
-const pdfFileInput = document.getElementById('pdfFile');
-const uploadBtn = document.getElementById('uploadBtn');
-uploadBtn.addEventListener('click', ()=>{
-  const subject = subjectSelect.value;
-  const name = pdfNameInput.value.trim();
-  const file = pdfFileInput.files[0];
-  if(!name||!file) return alert('Enter name & choose PDF');
-  const url = URL.createObjectURL(file);
-  notesData[subject].push({name,url});
-  pdfNameInput.value=''; pdfFileInput.value='';
-  alert('PDF uploaded!');
-});
-
 // Weekly Challenges
 const weeklyChallenge = document.querySelectorAll('.challenge');
 weeklyChallenge.forEach(ch => ch.addEventListener('click', () => {
@@ -178,15 +162,6 @@ html5QrCode.start({facingMode:"environment"},{fps:10,qrbox:250},
   ()=>{}
 );
 
-// Teacher QR Generator
-const teacherQRDiv=document.getElementById('teacherQR');
-function generateTeacherQR(){
-  teacherQRDiv.innerHTML='';
-  const code='TeacherCode-'+Math.floor(Math.random()*100000);
-  QRCode.toCanvas(code,{width:200},(err,canvas)=>{if(err) console.error(err); teacherQRDiv.appendChild(canvas);});
-}
-generateTeacherQR(); setInterval(generateTeacherQR,10000);
-
 // Announcements
 const announcementsBtn=document.querySelector('.announcement');
 const announcementPopup=document.getElementById('announcementPopup');
@@ -200,6 +175,150 @@ document.getElementById('postAnnouncementBtn')?.addEventListener('click',()=>{
   const text=document.getElementById('announcementInput').value.trim();
   if(!text) return alert("Enter an announcement!");
   addAnnouncement(text); document.getElementById('announcementInput').value='';
+});
+
+// Dummy schedule data, replace/fetch from backend as needed
+const studentSchedule = [
+  {date: '24.9.2025', day: 'Monday', time: '9:00-10:00', subject: 'Math' },
+  {date: '24.9.2025', day: 'Monday', time: '11:00-12:00', subject: 'Science' },
+  {date: '24.9.2025', day: 'Tuesday', time: '9:00-10:00', subject: 'English' },
+  {date: '24.9.2025', day: 'Wednesday', time: '10:00-11:00', subject: 'History' },
+  {date: '24.9.2025', day: 'Thursday', time: '12:00-1:00', subject: 'Math' },
+  {date: '24.9.2025', day: 'Friday', time: '9:00-10:00', subject: 'Science' }
+];
+
+const teacherSchedule = [
+  {date: '24.9.2025', day: 'Monday', time: '9:00-10:00', subject: 'Math - Grade 9' },
+  {date: '24.9.2025', day: 'Tuesday', time: '11:00-12:00', subject: 'Math - Grade 10' },
+  {date: '24.9.2025', day: 'Thursday', time: '1:00-2:00', subject: 'Project Review' }
+];
+
+// teacher qr generator
+const assessmentButtonsDiv = document.getElementById('assessmentButtons'); // container for buttons under Dynamic QR Code
+const teacherQRDiv = document.getElementById('teacherQR');
+const qrHelperText = document.getElementById('qrHelperText');
+
+let qrInterval = null;
+let qrGenCount = 0;
+let currentButton = null;
+
+function generateQRCodeForSession(session) {
+  teacherQRDiv.innerHTML = '';
+  const codeData = `${session.subject}-${Date.now()}`;
+  QRCode.toCanvas(codeData, {width: 200}, (err, canvas) => {
+    if(err) {
+      console.error(err);
+      qrHelperText.textContent = 'Error generating QR code.';
+      return;
+    }
+    teacherQRDiv.appendChild(canvas);
+  });
+}
+
+function onSessionButtonClick(session, buttonElement) {
+  // Clear previous interval if any
+  if(qrInterval) clearInterval(qrInterval);
+
+  qrGenCount = 0;
+  currentButton = buttonElement;
+  qrHelperText.textContent = `Showing QR for "${session.subject}". It will regenerate every 10 seconds for 6 times.`;
+  generateQRCodeForSession(session);
+
+  qrInterval = setInterval(() => {
+    qrGenCount++;
+    if(qrGenCount >= 6) {
+      clearInterval(qrInterval);
+      qrHelperText.textContent = `QR regeneration completed for "${session.subject}".`;
+      teacherQRDiv.innerHTML = '';  // Remove QR
+      if(currentButton) {
+        currentButton.style.display = 'none'; // Hide the clicked button
+      }
+      currentButton = null;
+      return;
+    }
+    generateQRCodeForSession(session);
+  }, 10000);
+}
+
+function renderSessionButtons() {
+  assessmentButtonsDiv.innerHTML = '';
+  teacherSchedule.forEach((session, idx) => {
+    const btn = document.createElement('button');
+    btn.textContent = `${session.subject}`;
+    btn.className = 'assessment-btn';
+    btn.style.marginRight = '12px';
+    btn.style.marginBottom = '8px';
+    btn.style.padding = '8px 16px';
+    btn.style.borderRadius = '10px';
+    btn.style.border = 'none';
+    btn.style.background = '#4f46e5';
+    btn.style.color = '#fff';
+    btn.style.fontWeight = '600';
+    btn.style.cursor = 'pointer';
+    btn.addEventListener('click', () => onSessionButtonClick(session, btn));
+    assessmentButtonsDiv.appendChild(btn);
+  });
+}
+renderSessionButtons();
+
+// Render for student
+function renderStudentSchedule() {
+  const container = document.getElementById('studentScheduleCards');
+  container.innerHTML = '';
+  studentSchedule.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `<h3>${item.subject}</h3>
+      <p>${item.date} , ${item.day}, ${item.time}</p>`;
+    container.appendChild(div);
+  });
+}
+renderStudentSchedule();
+
+// Render for teacher
+function renderTeacherSchedule() {
+  const container = document.getElementById('teacherScheduleCards');
+  container.innerHTML = '';
+  teacherSchedule.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `<h3>${item.subject}</h3>
+      <p>${item.date} , ${item.day}, ${item.time}</p>`;
+    container.appendChild(div);
+  });
+}
+renderTeacherSchedule();
+
+// Use teacherSchedule array for sessions
+const sessionSelect = document.getElementById('sessionSelect');
+function populateSessionDropdown() {
+  sessionSelect.innerHTML = '';
+  teacherSchedule.forEach((session, idx) => {
+    const option = document.createElement('option');
+    option.value = idx;
+    option.textContent = `${session.date} , ${session.day} , ${session.time}, ${session.subject}`;
+    sessionSelect.appendChild(option);
+  });
+}
+populateSessionDropdown();
+
+// Store notes by session index
+const notesDataBySession = {}; // { sessionIdx: [ {name, url} ] }
+const pdfNameInput = document.getElementById('pdfName');
+const pdfFileInput = document.getElementById('pdfFile');
+const uploadBtn = document.getElementById('uploadBtn');
+
+uploadBtn.addEventListener('click', () => {
+  const sessionIdx = sessionSelect.value;
+  const name = pdfNameInput.value.trim();
+  const file = pdfFileInput.files[0];
+  if(!name || !file) return alert('Enter name & choose PDF');
+  const url = URL.createObjectURL(file);
+  if(!notesDataBySession[sessionIdx]) notesDataBySession[sessionIdx] = [];
+  notesDataBySession[sessionIdx].push({ name, url });
+  pdfNameInput.value = '';
+  pdfFileInput.value = '';
+  alert('PDF uploaded!');
 });
 
 // Global exports
